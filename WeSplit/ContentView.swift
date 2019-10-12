@@ -9,14 +9,14 @@
 import SwiftUI
 
 struct ContentView: View {
-        @State private var checkAmount = ""
-    @State private var numberOfPeople = 2
+    @State private var checkAmount = ""
+    @State private var numberOfPeople = ""
     @State private var tipPercentage = 2
     
     let tipPercentages = [10, 15, 20, 25, 0]
     
     var totalPerPerson : Double {
-        let peopleCount = Double(numberOfPeople + 2)
+        let peopleCount = Double(numberOfPeople) ?? 0
         let tipSelection = Double(tipPercentages[tipPercentage])
         let orderAmount = Double(checkAmount) ?? 0
         
@@ -26,19 +26,26 @@ struct ContentView: View {
         
         return amountPerPerson
     }
+    var totalAmount : Double {
+        let tipSelection = Double(tipPercentages[tipPercentage])
+        let orderAmount = Double(checkAmount) ?? 0
+        
+        let tipAmount = orderAmount / 100 * tipSelection
+        let totalAmount = orderAmount + tipAmount
+        
+        return totalAmount
+    }
     
     var body: some View {
         NavigationView {
             Form {
-                Section {
+                Section(header: Text("Number of people")) {
+                    TextField("Number of people", text: $numberOfPeople)
+                    .keyboardType(.decimalPad)
+                }
+                Section(header: Text("Check amount")) {
                     TextField("Amount", text: $checkAmount)
                     .keyboardType(.decimalPad)
-                
-                    Picker("Number of people", selection: $numberOfPeople) {
-                    ForEach(2 ..< 100) {
-                        Text("\($0) people")
-                        }
-                    }
                 }
                 Section(header: Text("How much tip do you want to leave?")) {
                     Picker("Tips percentage", selection: $tipPercentage) {
@@ -48,18 +55,20 @@ struct ContentView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
                 }
+                Section(header: Text("Total amount")) {
+                    Text("$\(totalAmount, specifier: "%.2f")")
+                }
                 Section(header: Text("Amount per person")) {
                     Text("$\(totalPerPerson, specifier: "%.2f")")
                 }
                 .navigationBarTitle("We split")
-
                 }
             }
         }
-    }
-
+}
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
 }
+
